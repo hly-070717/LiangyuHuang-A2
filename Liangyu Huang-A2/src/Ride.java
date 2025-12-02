@@ -1,6 +1,8 @@
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Class representing a ride in the theme park.
@@ -29,8 +31,8 @@ public class Ride implements RideInterface {
         this.rideType = "General";
         this.minimumHeight = 100; // Default 100cm
         this.rideOperator = null; // No operator assigned initially
-        this.waitingQueue = new LinkedList<>();
-        this.rideHistory = new LinkedList<>();
+        this.waitingQueue = new LinkedList<Visitor>();
+        this.rideHistory = new LinkedList<Visitor>();
         this.maxRider = 2;    // Default: 2 visitors per cycle
         this.numOfCycles = 0; // Starts at 0
     }
@@ -231,6 +233,53 @@ public class Ride implements RideInterface {
             count++;
         }
         System.out.println();
+    }
+
+    // ============ Part 4B: Sorting Methods ============
+
+    /**
+     * Sorts the ride history using a Comparator.
+     * Part 4B: Sorting the ride history
+     *
+     * @param comparator the comparator to use for sorting
+     */
+    public void sortRideHistory(Comparator<Visitor> comparator) {
+        if (rideHistory == null || rideHistory.isEmpty()) {
+            System.out.println("Info: Ride history is empty. Nothing to sort.");
+            return;
+        }
+
+        if (comparator == null) {
+            System.out.println("Error: Comparator cannot be null.");
+            return;
+        }
+
+        System.out.println("Sorting ride history for " + rideName + "...");
+        Collections.sort(rideHistory, comparator);
+        System.out.println("Ride history sorted successfully.");
+    }
+
+    /**
+     * Sorts the ride history using the default comparator (by age then name).
+     */
+    public void sortRideHistory() {
+        sortRideHistory(new VisitorComparator());
+    }
+
+    /**
+     * Sorts the ride history by name and membership type.
+     */
+    public void sortRideHistoryByName() {
+        VisitorComparator.NameComparator nameComparator = new VisitorComparator.NameComparator();
+        sortRideHistory(nameComparator);
+    }
+
+    /**
+     * Sorts the ride history by ticket number and season pass status.
+     */
+    public void sortRideHistoryByTicket() {
+        VisitorComparator.TicketNumberComparator ticketComparator = new VisitorComparator.TicketNumberComparator();
+        sortRideHistory(ticketComparator);
     }
 
     // Part 5: Run Ride Operations
