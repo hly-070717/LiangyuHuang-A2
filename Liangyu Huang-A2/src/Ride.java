@@ -6,6 +6,11 @@ import java.util.Comparator;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class representing a ride in the theme park.
@@ -438,6 +443,183 @@ public class Ride implements RideInterface {
     public boolean exportRideHistory() {
         String defaultFilename = rideName.replaceAll("\\s+", "_") + "_history.csv";
         return exportRideHistory(defaultFilename);
+    }
+
+    // ============ Part 7: Reading from File ============
+
+    /**
+     * PART 7: Imports ride history from a CSV file.
+     * Reads the file created in Part 6 and adds visitors to ride history.
+     *
+     * @param filename The name of the file to read from
+     * @return Number of visitors successfully imported, or -1 on error
+     */
+    public int importRideHistory(String filename) {
+        if (filename == null || filename.trim().isEmpty()) {
+            System.out.println("Error: Filename cannot be null or empty.");
+            return -1;
+        }
+
+        File file = new File(filename);
+        if (!file.exists()) {
+            System.out.println("Error: File does not exist: " + filename);
+            return -1;
+        }
+
+        if (!file.canRead()) {
+            System.out.println("Error: Cannot read file: " + filename);
+            return -1;
+        }
+
+        BufferedReader reader = null;
+        int importedCount = 0;
+        int lineNumber = 0;
+
+        try {
+            System.out.println("Importing ride history from file: " + filename);
+            System.out.println("File size: " + file.length() + " bytes");
+
+            reader = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+
+                // Skip empty lines
+                if (line.trim().isEmpty()) {
+                    System.out.println("Info: Skipping empty line " + lineNumber);
+                    continue;
+                }
+
+                try {
+                    // Parse CSV line
+                    Visitor visitor = parseCSVLine(line, lineNumber);
+                    if (visitor != null) {
+                        // Add visitor to history
+                        if (rideHistory.add(visitor)) {
+                            importedCount++;
+                            System.out.println("Success: Imported visitor from line " + lineNumber +
+                                    ": " + visitor.getName());
+                        } else {
+                            System.out.println("Warning: Failed to add visitor from line " + lineNumber);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error: Failed to parse line " + lineNumber +
+                            ": " + e.getMessage());
+                    System.out.println("Line content: " + line);
+                }
+            }
+
+            reader.close();
+
+            System.out.println("\nImport completed:");
+            System.out.println("  Total lines read: " + lineNumber);
+            System.out.println("  Visitors successfully imported: " + importedCount);
+            System.out.println("  Failed imports: " + (lineNumber - importedCount));
+
+            return importedCount;
+
+        } catch (IOException e) {
+            System.out.println("Error: IO error reading file: " + filename);
+            System.out.println("Exception: " + e.getMessage());
+            return -1;
+        } catch (Exception e) {
+            System.out.println("Error: Unexpected error during import");
+            System.out.println("Exception: " + e.getMessage());
+            return -1;
+        } finally {
+            // Ensure reader is closed
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    System.out.println("Warning: Failed to close file reader");
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method to parse a CSV line into a Visitor object.
+     *
+     * @param csvLine The CSV line to parse
+     * @param lineNumber Line number for error reporting
+     * @return Visitor object, or null if parsing fails
+     */
+    private Visitor parseCSVLine(String csvLine, int lineNumber) {
+        try {
+            // Simple CSV parsing - handle quoted fields
+            List<String> fields = new ArrayList<>();
+            StringBuilder currentField = new StringBuilder();
+            boolean inQuotes = false;
+
+            for (int i = 0; i < csvLine.length(); i++) {
+                char c = csvLine.charAt(i);
+
+                if (c == '"') {
+                    // Handle escaped quotes
+                    if (i + 1 < csvLine.length() && csvLine.charAt(i + 1) == '"') {
+                        currentField.append('"');
+                        i++; // Skip next quote
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (c == ',' && !inQuotes) {
+                    fields.add(currentField.toString());
+                    currentField.setLength(0);
+                } else {
+                    currentField.append(c);
+                }
+            }
+            fields.add(currentField.toString()); // Add last field
+
+            // Check if we have exactly 6 fields
+            if (fields.size() != 6) {
+                System.out.println("Error: Line " + lineNumber +
+                        " has " + fields.size() + " fields (expected 6)");
+                return null;
+            }
+
+            // Parse fields
+            String name = fields.get(0);
+            int age = Integer.parseInt(fields.get(1));
+            String email = fields.get(2);
+            String ticketNumber = fields.get(3);
+            boolean hasSeasonPass = Boolean.parseBoolean(fields.get(4));
+            String membershipType = fields.get(5);
+
+            // Validate data
+            if (name.isEmpty() || email.isEmpty() || ticketNumber.isEmpty()) {
+                System.out.println("Warning: Line " + lineNumber + " has empty required fields");
+            }
+
+            if (age < 0 || age > 120) {
+                System.out.println("Warning: Line " + lineNumber + " has unusual age: " + age);
+            }
+
+            // Create and return visitor
+            return new Visitor(name, age, email, ticketNumber, hasSeasonPass, membershipType);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Line " + lineNumber +
+                    " has invalid number format: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.out.println("Error: Failed to parse line " + lineNumber +
+                    ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Overloaded version that reads from default filename.
+     *
+     * @return Number of visitors successfully imported, or -1 on error
+     */
+    public int importRideHistory() {
+        String defaultFilename = rideName.replaceAll("\\s+", "_") + "_history.csv";
+        return importRideHistory(defaultFilename);
     }
 
     // Override toString
