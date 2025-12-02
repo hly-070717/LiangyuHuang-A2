@@ -1,4 +1,3 @@
-
 /**
  * Main class for the theme park management system.
  * Contains placeholder methods for future parts.
@@ -7,82 +6,146 @@ public class AssignmentTwo {
 
     public static void main(String[] args) {
         System.out.println("=== Theme Park Management System ===");
-        System.out.println("Part 1: Classes and Inheritance Demonstration\n");
+        System.out.println("Part 2: Abstract Class and Interface Demonstration\n");
 
-        // Demonstrate Part 1 functionality
-        demonstratePart1();
+        // Demonstrate Part 2 functionality
+        demonstratePart2();
 
-        System.out.println("\n=== End of Part 1 Demonstration ===");
+        System.out.println("\n=== End of Part 2 Demonstration ===");
     }
 
     /**
-     * Demonstrates the functionality of Part 1 classes
+     * Demonstrates the functionality of Part 2 (abstract class and interface)
      */
-    private static void demonstratePart1() {
-        // Create an Employee
-        Employee operator = new Employee("John Smith", 28, "john.smith@themepark.com",
-                "E1001", "Ride Operations", true);
-        System.out.println("Created Employee: " + operator);
+    private static void demonstratePart2() {
+        System.out.println("=== Testing Abstract Person Class ===");
 
-        // Create a Visitor
-        Visitor visitor1 = new Visitor("Alice Johnson", 25, "alice@email.com",
-                "T2001", true, "VIP");
-        System.out.println("Created Visitor: " + visitor1);
+        // Cannot instantiate Person directly (it's abstract)
+        // Person person = new Person(); // This would cause compilation error
 
-        // Create another Visitor
-        Visitor visitor2 = new Visitor("Bob Williams", 12, "bob@email.com",
-                "T2002", false, "Child");
-        System.out.println("Created Visitor: " + visitor2);
+        // But we can instantiate subclasses
+        System.out.println("Person is abstract - can only create Employee or Visitor objects");
 
-        // Create a Ride with the employee as operator
-        Ride rollerCoaster = new Ride("Thunder Bolt", "Roller Coaster", 140, operator);
-        System.out.println("Created Ride: " + rollerCoaster);
+        System.out.println("\n=== Testing RideInterface Implementation ===");
 
-        // Create another Ride without an operator
-        Ride waterRide = new Ride("Splash Mountain", "Water Ride", 120, null);
-        System.out.println("Created Ride: " + waterRide);
+        // Create employees
+        Employee operator1 = new Employee("John Smith", 28, "john@park.com",
+                "E1001", "Operations", true);
+        Employee operator2 = new Employee("Sarah Lee", 32, "sarah@park.com",
+                "E1002", "Operations", false); // Not on duty
 
-        // Demonstrate getters and setters
-        System.out.println("\n=== Demonstrating Getters and Setters ===");
+        // Create visitors
+        Visitor visitor1 = new Visitor("Alice", 25, "alice@email.com", "T1001", true, "VIP");
+        Visitor visitor2 = new Visitor("Bob", 30, "bob@email.com", "T1002", false, "Regular");
+        Visitor visitor3 = new Visitor("Charlie", 22, "charlie@email.com", "T1003", true, "VIP");
+        Visitor visitor4 = new Visitor("Diana", 28, "diana@email.com", "T1004", false, "Regular");
+        Visitor visitor5 = new Visitor("Ethan", 35, "ethan@email.com", "T1005", true, "Premium");
 
-        // Change ride operator
-        Employee newOperator = new Employee("Sarah Davis", 32, "sarah@themepark.com",
-                "E1002", "Ride Operations", true);
-        rollerCoaster.setRideOperator(newOperator);
-        System.out.println("Updated Ride Operator: " + rollerCoaster.getRideOperator().getName());
+        System.out.println("\n=== Creating Rides (implementing RideInterface) ===");
 
-        // Change visitor details
-        visitor1.setAge(26);
-        visitor1.setMembershipType("Premium VIP");
-        System.out.println("Updated Visitor: " + visitor1);
+        // Create rides with different maxRider capacities
+        Ride rollerCoaster = new Ride("Thunder Bolt", "Roller Coaster", 140, operator1, 2);
+        Ride waterRide = new Ride("Splash Mountain", "Water Ride", 120, operator2, 4);
 
-        // Check ride operational status
-        System.out.println("Roller Coaster is operational: " + rollerCoaster.isOperational());
-        System.out.println("Water Ride is operational: " + waterRide.isOperational());
+        System.out.println("Created: " + rollerCoaster);
+        System.out.println("Created: " + waterRide);
+
+        System.out.println("\n=== Testing Queue Operations (Part 3 methods) ===");
+
+        // Test addVisitorToQueue
+        System.out.println("\n--- Adding visitors to Thunder Bolt queue ---");
+        rollerCoaster.addVisitorToQueue(visitor1);
+        rollerCoaster.addVisitorToQueue(visitor2);
+        rollerCoaster.addVisitorToQueue(visitor3);
+        rollerCoaster.addVisitorToQueue(visitor4);
+        rollerCoaster.addVisitorToQueue(visitor5);
+
+        // Test printQueue
+        rollerCoaster.printQueue();
+
+        // Test removeVisitorFromQueue
+        System.out.println("--- Removing a visitor from queue ---");
+        rollerCoaster.removeVisitorFromQueue();
+        rollerCoaster.printQueue();
+
+        System.out.println("\n=== Testing Ride History Operations (Part 4A methods) ===");
+
+        // Test addVisitorToHistory
+        System.out.println("\n--- Adding visitors to Splash Mountain history ---");
+        waterRide.addVisitorToHistory(visitor1);
+        waterRide.addVisitorToHistory(visitor2);
+        waterRide.addVisitorToHistory(visitor3);
+
+        // Test checkVisitorFromHistory
+        System.out.println("\n--- Checking visitors in history ---");
+        waterRide.checkVisitorFromHistory(visitor1);  // Should be true
+        waterRide.checkVisitorFromHistory(visitor5);  // Should be false
+
+        // Test numberOfVisitors
+        System.out.println("\n--- Counting visitors in history ---");
+        waterRide.numberOfVisitors();
+
+        // Test printRideHistory (using Iterator as required)
+        System.out.println("\n--- Printing ride history (using Iterator) ---");
+        waterRide.printRideHistory();
+
+        System.out.println("\n=== Testing runOneCycle (Part 5 preview) ===");
+
+        // Add visitors to water ride queue
+        waterRide.addVisitorToQueue(visitor4);
+        waterRide.addVisitorToQueue(visitor5);
+        waterRide.printQueue();
+
+        // Try to run cycle (should fail - operator not on duty)
+        System.out.println("\n--- Attempting to run Splash Mountain (operator off duty) ---");
+        waterRide.runOneCycle();
+
+        // Create a ride with no operator
+        Ride noOperatorRide = new Ride("Test Ride", "Test", 100, null, 2);
+        noOperatorRide.addVisitorToQueue(visitor1);
+
+        System.out.println("\n--- Attempting to run Test Ride (no operator) ---");
+        noOperatorRide.runOneCycle();
+
+        // Test successful cycle
+        System.out.println("\n--- Attempting to run Thunder Bolt (should succeed) ---");
+        rollerCoaster.printQueue();
+        rollerCoaster.runOneCycle();
+
+        // Show results
+        System.out.println("\n=== Final State ===");
+        System.out.println("Thunder Bolt: " + rollerCoaster);
+        System.out.println("Splash Mountain: " + waterRide);
+
+        System.out.println("\nThunder Bolt queue:");
+        rollerCoaster.printQueue();
+
+        System.out.println("Thunder Bolt history:");
+        rollerCoaster.printRideHistory();
     }
 
-    // Placeholder methods for future parts (as specified in the brief)
+    // Placeholder methods for future parts
     public void partThree() {
-        // To be implemented in Part 3
+        System.out.println("Part 3: Queue implementation will be tested here");
     }
 
     public void partFourA() {
-        // To be implemented in Part 4A
+        System.out.println("Part 4A: Ride history with LinkedList will be tested here");
     }
 
     public void partFourB() {
-        // To be implemented in Part 4B
+        System.out.println("Part 4B: Sorting ride history will be tested here");
     }
 
     public void partFive() {
-        // To be implemented in Part 5
+        System.out.println("Part 5: Run ride cycle will be tested here");
     }
 
     public void partSix() {
-        // To be implemented in Part 6
+        System.out.println("Part 6: Writing to file will be tested here");
     }
 
     public void partSeven() {
-        // To be implemented in Part 7
+        System.out.println("Part 7: Reading from file will be tested here");
     }
 }

@@ -1,5 +1,3 @@
-
-
 /**
  * Abstract class representing a person in the theme park system.
  * This class will never be instantiated directly.
