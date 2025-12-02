@@ -1,5 +1,6 @@
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Iterator;
 
 /**
  * Class representing a ride in the theme park.
@@ -93,6 +94,16 @@ public class Ride implements RideInterface {
 
     public int getNumOfCycles() {
         return numOfCycles;
+    }
+
+    // Method to get queue size (for Part 3)
+    public int getQueueSize() {
+        return waitingQueue.size();
+    }
+
+    // Method to get history size
+    public int getHistorySize() {
+        return rideHistory.size();
     }
 
     // Method to check if ride has an operator assigned
@@ -209,7 +220,7 @@ public class Ride implements RideInterface {
         System.out.println("Details:");
 
         // Using Iterator as required
-        java.util.Iterator<Visitor> iterator = rideHistory.iterator();
+        Iterator<Visitor> iterator = rideHistory.iterator();
         int count = 1;
         while (iterator.hasNext()) {
             Visitor visitor = iterator.next();
