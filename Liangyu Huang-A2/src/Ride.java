@@ -3,6 +3,9 @@ import java.util.Queue;
 import java.util.Iterator;
 import java.util.Collections;
 import java.util.Comparator;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Class representing a ride in the theme park.
@@ -331,6 +334,110 @@ public class Ride implements RideInterface {
         numOfCycles++;
         System.out.println("Cycle completed. Total cycles run: " + numOfCycles);
         System.out.println("Visitors remaining in queue: " + waitingQueue.size());
+    }
+
+    // ============ Part 6: Writing to File ============
+
+    /**
+     * PART 6: Exports ride history to a CSV file.
+     * Writes details of all visitors who have taken the ride to a file.
+     * Each visitor's details are written on their own line in CSV format.
+     *
+     * @param filename The name of the file to write to
+     * @return true if export was successful, false otherwise
+     */
+    public boolean exportRideHistory(String filename) {
+        if (filename == null || filename.trim().isEmpty()) {
+            System.out.println("Error: Filename cannot be null or empty.");
+            return false;
+        }
+
+        if (rideHistory == null || rideHistory.isEmpty()) {
+            System.out.println("Info: Ride history is empty. No data to export.");
+            return false;
+        }
+
+        BufferedWriter writer = null;
+        try {
+            // Create BufferedWriter for efficient writing
+            writer = new BufferedWriter(new FileWriter(filename));
+
+            System.out.println("Exporting ride history for " + rideName + " to file: " + filename);
+            System.out.println("Total visitors to export: " + rideHistory.size());
+
+            int count = 0;
+            // Write each visitor's details as a CSV line
+            for (Visitor visitor : rideHistory) {
+                if (visitor != null) {
+                    // Create CSV line: name,age,email,ticketNumber,hasSeasonPass,membershipType
+                    String csvLine = String.format("%s,%d,%s,%s,%b,%s",
+                            escapeCSV(visitor.getName()),
+                            visitor.getAge(),
+                            escapeCSV(visitor.getEmail()),
+                            escapeCSV(visitor.getTicketNumber()),
+                            visitor.hasSeasonPass(),
+                            escapeCSV(visitor.getMembershipType()));
+
+                    writer.write(csvLine);
+                    writer.newLine();
+                    count++;
+                }
+            }
+
+            writer.close();
+            System.out.println("Success: Exported " + count + " visitors to " + filename);
+            return true;
+
+        } catch (IOException e) {
+            System.out.println("Error: Failed to write to file " + filename);
+            System.out.println("Exception: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.out.println("Error: Unexpected error during export");
+            System.out.println("Exception: " + e.getMessage());
+            return false;
+        } finally {
+            // Ensure writer is closed
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.out.println("Warning: Failed to close file writer");
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method to escape CSV special characters.
+     * Wraps strings containing commas or quotes in double quotes.
+     *
+     * @param input The string to escape
+     * @return The escaped CSV string
+     */
+    private String escapeCSV(String input) {
+        if (input == null) {
+            return "";
+        }
+
+        // If string contains comma, double quote, or newline, wrap in quotes
+        if (input.contains(",") || input.contains("\"") || input.contains("\n")) {
+            // Escape double quotes by doubling them
+            String escaped = input.replace("\"", "\"\"");
+            return "\"" + escaped + "\"";
+        }
+
+        return input;
+    }
+
+    /**
+     * Overloaded version that uses default filename based on ride name.
+     *
+     * @return true if export was successful, false otherwise
+     */
+    public boolean exportRideHistory() {
+        String defaultFilename = rideName.replaceAll("\\s+", "_") + "_history.csv";
+        return exportRideHistory(defaultFilename);
     }
 
     // Override toString
